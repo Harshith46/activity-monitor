@@ -1,6 +1,27 @@
 const express = require('express');
+const compression = require('compression');
+const morgan = require('morgan');
+const path = require('path');
 
 const app = express();
+
+const dev = app.get('env') !== 'production';
+
+if (!dev) {
+  app.disable('x-powered-by');
+  app.use(compression());
+  app.use(morgan('common'));
+
+  app.use(express.static(path.resolve(__dirname, 'build')));
+
+  app.get('*', (req, res) => {
+    res.sendFile(path.resolve(__dirname, 'build', 'index.html'));
+  });
+}
+
+if (dev) {
+  app.use(morgan('dev'));
+}
 
 app.get('/api/members', (req, res) => {
   const members = [
@@ -47,6 +68,8 @@ app.get('/api/members', (req, res) => {
   res.json(members);
 });
 
-const port = 3001;
+const normalizePort = port => parseInt(port, 10);
+
+const port = normalizePort(process.env.PORT || 3001);
 
 app.listen(port, () => console.log(`server started on port ${port}`));
