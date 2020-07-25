@@ -1,26 +1,32 @@
-import React from 'react';
-import logo from './logo.svg';
+import React, {useEffect, useState} from 'react';
+import 'react-calendar/dist/Calendar.css';
+
+import Header from './components/Header';
+import ProfileContainer from './components/ProfileContainer';
+
 import './App.css';
 
-function App() {
+const App = () => {
+  const [members, setMember] = useState(null);
+
+  useEffect(() => {
+    fetch('/api/members')
+      .then(res => res.json())
+      .then(members => setMember(members));
+  }, []);
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div>
+      <Header />
+      <h1 className="headline">Activity Monitor</h1>
+      <div className="profile-container-wrapper">
+        {members &&
+          members.map(member => (
+            <ProfileContainer key={member.id} {...member} />
+          ))}
+      </div>
     </div>
   );
-}
+};
 
 export default App;
